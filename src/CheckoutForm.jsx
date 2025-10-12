@@ -1,12 +1,41 @@
-import { PaymentElement } from "@stripe/react-stripe-js";
-import React from "react";
+import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import React, { useState } from "react";
 
 const CheckoutForm = () => {
-  const [loading, setLoading] = React.useState(false);
-  const [message, setMessage] = React.useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const stripe = useStripe();
+  const elements = useElements()
+
+
+
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+
+    setLoading(true);
+
+    const { error: submitError } = await elements.submit();
+    if (submitError) {
+      setMessage(submitError.message || "Validation error");
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: window.location.origin + "/success",
+      },
+    });
+
+    if (error) setMessage(error.message || "Payment failed");
+    setLoading(false);
+  };
   return (
     <div className="max-w-7xl mx-auto">
-      <form>
+      <form onSubmit={handleSubmit}>
         <PaymentElement />
         <button type="submit" >
           {loading ? "Processing…" : "Pay $10.99"}
