@@ -37,7 +37,7 @@ const CheckoutForm = () => {
     <div className="max-w-7xl mx-auto">
       <form onSubmit={handleSubmit}>
         <PaymentElement />
-        <button type="submit" >
+        <button type="submit" className="bg-green-300 px-4 py-2 mt-3" disabled={!stripe || loading}>
           {loading ? "Processing…" : "Pay $10.99"}
         </button>
         {message && <div>{message}</div>}
